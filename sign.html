@@ -2,14 +2,57 @@
 <html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RollCall</title>
-  <body style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;">
-    <h2>RollCall</h2>
-    <p id="session"></p>
+  <title>RollCall Sign</title>
+  <body style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 16px; line-height:1.5">
+    <h1>RollCall</h1>
+
+    <form id="f">
+      <div><strong>Session</strong>: <span id="sessionSpan"></span></div>
+      <label>Name<br><input id="name" required></label><br><br> // name input
+      <label>ASU ID<br><input id="asuId" required></label><br><br> // asu id input
+      <label>Code (on screen)<br><input id="code" required inputmode="numeric" pattern="[0-9]{6}"></label><br><br> // secret code input (displayed on professors screen)
+      <button>Sign In</button>
+    </form>
+
+    <p id="msg"></p>
+
     <script>
       const params = new URLSearchParams(location.search);
-      document.getElementById('session').textContent =
-        "Session: " + (params.get('session') || '(none)');
+      const sessionId = params.get('session') || '';
+      document.getElementById('sessionSpan').textContent = sessionId || '(missing)';
+
+      // sign in form to get student info
+      // the session id is passed from the app with the qr code
+      const form = document.getElementById('f');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          path: 'sign',                
+          sessionId,
+          name: document.getElementById('name').value.trim(),
+          asuId: document.getElementById('asuId').value.trim(),
+          code: document.getElementById('code').value.trim()
+        };
+        const msg = document.getElementById('msg');
+        msg.textContent = 'Submitting…';
+
+        try {
+          const res = await fetch("https://script.google.com/macros/s/AKfycbzhrZAhJFhfqGDyxWanZALLztT5kXR4sw_iBrLQQ-UW3JiEy5oTfOS9uL3GG-dwL4J7ag/exec", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json();
+          if (json.ok) {
+            msg.textContent = "Signed in ✅";
+            form.reset();
+          } else {
+            msg.textContent = "Not accepted: " + (json.reason || "unknown");
+          }
+        } catch (err) {
+          msg.textContent = "Network error: " + err.message;
+        }
+      });
     </script>
   </body>
 </html>
