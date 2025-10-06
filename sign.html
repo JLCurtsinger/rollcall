@@ -3,15 +3,32 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RollCall Sign</title>
+
   <body style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 16px; line-height:1.5">
     <h1>RollCall</h1>
 
-    <form id="f">
+    <form id="f" autocomplete="off">
       <div><strong>Session</strong>: <span id="sessionSpan"></span></div>
-      <label>Name<br><input id="name" required></label><br><br> // name input
-      <label>ASU ID<br><input id="asuId" required></label><br><br> // asu id input
-      <label>Code (on screen)<br><input id="code" required inputmode="numeric" pattern="[0-9]{6}"></label><br><br> // secret code input (displayed on professors screen)
-      <button>Sign In</button>
+
+      <!-- name input -->
+      <label>Name<br>
+        <input id="name" required>
+      </label>
+      <br><br>
+
+      <!-- ASU ID input -->
+      <label>ASU ID<br>
+        <input id="asuId" required>
+      </label>
+      <br><br>
+
+      <!-- secret code input (displayed on professor's screen) -->
+      <label>Code (on screen)<br>
+        <input id="code" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6">
+      </label>
+      <br><br>
+
+      <button id="btn">Sign In</button>
     </form>
 
     <p id="msg"></p>
@@ -21,19 +38,32 @@
       const sessionId = params.get('session') || '';
       document.getElementById('sessionSpan').textContent = sessionId || '(missing)';
 
-      // sign in form to get student info
-      // the session id is passed from the app with the qr code
       const form = document.getElementById('f');
+      const btn  = document.getElementById('btn');
+      const msg  = document.getElementById('msg');
+
+      // Block submit if session is missing
+      if (!sessionId) {
+        msg.textContent = "Missing session id. Please rescan the QR code.";
+        btn.disabled = true;
+      }
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const payload = {
-          path: 'sign',                
-          sessionId,
-          name: document.getElementById('name').value.trim(),
-          asuId: document.getElementById('asuId').value.trim(),
-          code: document.getElementById('code').value.trim()
-        };
-        const msg = document.getElementById('msg');
+
+        const name  = document.getElementById('name').value.trim();
+        const asuId = document.getElementById('asuId').value.trim();
+        const code  = document.getElementById('code').value.trim();
+
+        // client-side validation (server still checks)
+        if (!/^\d{6}$/.test(code)) {
+          msg.textContent = "Code must be exactly 6 digits.";
+          return;
+        }
+
+        const payload = { path: 'sign', sessionId, name, asuId, code };
+
+        btn.disabled = true;
         msg.textContent = 'Submitting…';
 
         try {
@@ -42,15 +72,18 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
+
           const json = await res.json();
           if (json.ok) {
-            msg.textContent = "Signed in.";
+            msg.textContent = "Signed in ✅";
             form.reset();
           } else {
             msg.textContent = "Not accepted: " + (json.reason || "unknown");
           }
         } catch (err) {
           msg.textContent = "Network error: " + err.message;
+        } finally {
+          btn.disabled = false;
         }
       });
     </script>
