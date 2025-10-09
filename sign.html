@@ -50,30 +50,30 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
+    
         const name  = document.getElementById('name').value.trim();
         const asuId = document.getElementById('asuId').value.trim();
         const code  = document.getElementById('code').value.trim();
-
-        // client-side validation (server still checks)
+    
         if (!/^\d{6}$/.test(code)) {
           msg.textContent = "Code must be exactly 6 digits.";
           return;
         }
-
-        const payload = { path: 'sign', sessionId, name, asuId, code };
-
+    
         btn.disabled = true;
         msg.textContent = 'Submitting…';
-
+    
         try {
-          const res = await fetch("https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiHA0H3JOa_ZhbmmeG1NVlUIgnawXlQ-xCvck4YIuuQ88-vIEQuL6AczU3Ru4Ktm1AAJSXWu2QMC6u-lGgZC5sKbNmG4pojG0eNCgnqr6e-CqGe8vkvdUk_XbiQJDk-lfrGSNT0mYjjS3y1hqJYYS0YZ1TA2TG1tYrgD_FBaG2eCGnmOOOdyy2Nqb4-56casws5THgXSYowlBvEjgnwHwyJNaK37byoAoa3EH5NoX73a41HdJxIgZHLLBr6IthEXgagbmZDVgo2OvDPyYyV3G-fXMt38A&lib=ME48e_08d5uJtEaQFUuAbB9DMKFHDuIAe", {
-            method: "POST",
-            mode: "cors",
-            body: JSON.stringify(payload)
-          });
-
+          const u = new URL("https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiHA0H3JOa_ZhbmmeG1NVlUIgnawXlQ-xCvck4YIuuQ88-vIEQuL6AczU3Ru4Ktm1AAJSXWu2QMC6u-lGgZC5sKbNmG4pojG0eNCgnqr6e-CqGe8vkvdUk_XbiQJDk-lfrGSNT0mYjjS3y1hqJYYS0YZ1TA2TG1tYrgD_FBaG2eCGnmOOOdyy2Nqb4-56casws5THgXSYowlBvEjgnwHwyJNaK37byoAoa3EH5NoX73a41HdJxIgZHLLBr6IthEXgagbmZDVgo2OvDPyYyV3G-fXMt38A&lib=ME48e_08d5uJtEaQFUuAbB9DMKFHDuIAe");
+          u.searchParams.set("path", "sign");
+          u.searchParams.set("sessionId", sessionId);
+          u.searchParams.set("name", name);
+          u.searchParams.set("asuId", asuId);
+          u.searchParams.set("code", code);
+    
+          const res  = await fetch(u, { method: "GET", mode: "cors" });
           const json = await res.json();
+    
           if (json.ok) {
             msg.textContent = "Signed in ✅";
             form.reset();
