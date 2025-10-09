@@ -64,7 +64,8 @@
         msg.textContent = 'Submitting…';
     
         try {
-          const u = new URL("AKfycby273hGCFblrTn42MBGVrou6IjytsXogH8c6knG9K0");
+          const u = new URL("https://script.googleusercontent.com/macros/echo");
+          u.searchParams.set("lib", "AKfycby273hGCFblrTn42MBGVrou6IjytsXogH8c6knG9K0");
           u.searchParams.set("path", "sign");
           u.searchParams.set("sessionId", sessionId);
           u.searchParams.set("name", name);
