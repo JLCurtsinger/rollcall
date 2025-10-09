@@ -69,6 +69,7 @@
         try {
           const res = await fetch("https://script.google.com/macros/s/AKfycbz8xhAeDTG_am2kyvXrmKn8bzIB3PtBzLI-5zEV7HYL_q0MdbNCxAlyNV9NUPASgQlX/exec", {
             method: "POST",
+            mode: "cors",
             body: JSON.stringify(payload)
           });
 
