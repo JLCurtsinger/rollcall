@@ -64,8 +64,7 @@
         msg.textContent = 'Submitting…';
     
         try {
-          const u = new URL("https://script.googleusercontent.com/macros/echo");
-          u.searchParams.set("lib", "AKfycby273hGCFblrTn42MBGVrou6IjytsXogH8c6knG9K0");
+          const u = new URL("https://script.google.com/macros/s/AKfycbw9MFR1E_N6NyyOHM0N6Bm1KOrC4coObFg3y5_GUmzvwvBjfwaOMtjWuYNUGiLw639m/exec");
           u.searchParams.set("path", "sign");
           u.searchParams.set("sessionId", sessionId);
           u.searchParams.set("name", name);
@@ -76,7 +75,7 @@
           const json = await res.json();
     
           if (json.ok) {
-            msg.textContent = "Signed in ✅";
+            msg.textContent = "Signed in.";
             form.reset();
           } else {
             msg.textContent = "Not accepted: " + (json.reason || "unknown");
