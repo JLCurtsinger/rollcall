@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
   <title>RollCall Sign</title>
 
   <body style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 16px; line-height:1.5">
@@ -34,9 +34,9 @@
     <p id="msg"></p>
 
     <script>
-      const params = new URLSearchParams(location.search);
-      const sessionId = params.get('session') || '';
-      document.getElementById('sessionSpan').textContent = sessionId || '(missing)';
+      const params = new URLSearchParams(location.search); // read session from url
+      const sessionId = params.get('session') || ''; // use empty string if missing
+      document.getElementById('sessionSpan').textContent = sessionId || '(missing)'; // show session id
 
       const form = document.getElementById('f');
       const btn  = document.getElementById('btn');
@@ -45,45 +45,46 @@
       // Block submit if session is missing
       if (!sessionId) {
         msg.textContent = "Missing session id. Please rescan the QR code.";
-        btn.disabled = true;
+        btn.disabled = true; // prevents submit w/o session
       }
 
       form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-    
+        e.preventDefault(); // stay on page while form is submitted
+
+        // trim input values
         const name  = document.getElementById('name').value.trim();
         const asuId = document.getElementById('asuId').value.trim();
         const code  = document.getElementById('code').value.trim();
     
-        if (!/^\d{6}$/.test(code)) {
+        if (!/^\d{6}$/.test(code)) { // check if code is 6 digits
           msg.textContent = "Code must be exactly 6 digits.";
-          return;
+          return; // stop if code is not 6 digits
         }
     
-        btn.disabled = true;
-        msg.textContent = 'Submitting…';
+        btn.disabled = true; // stops double clicks 
+        msg.textContent = 'Submitting…'; // for user feedback 
     
         try {
-          const u = new URL("https://script.google.com/macros/s/AKfycbwqKbqvw0f62eFB_MYjIh5Qd1Jzp82GtPmTI-lofenVFw45tDKRQ86yGx-4LFiHU6U3kQ/exec");
-          u.searchParams.set("path", "sign");
-          u.searchParams.set("sessionId", sessionId);
-          u.searchParams.set("name", name);
+          const u = new URL("https://script.google.com/macros/s/AKfycbwqKbqvw0f62eFB_MYjIh5Qd1Jzp82GtPmTI-lofenVFw45tDKRQ86yGx-4LFiHU6U3kQ/exec"); // google apps script endpoint
+          u.searchParams.set("path", "sign"); // route to sign 
+          u.searchParams.set("sessionId", sessionId); // include current session
+          u.searchParams.set("name", name); 
           u.searchParams.set("asuId", asuId);
           u.searchParams.set("code", code);
     
           const res  = await fetch(u, { method: "GET", mode: "cors" });
-          const json = await res.json();
+          const json = await res.json(); // parse JSON response
     
           if (json.ok) {
-            msg.textContent = "Signed in.";
-            form.reset();
+            msg.textContent = "Signed in."; // success!
+            form.reset(); // clear fields for next sign-in
           } else {
-            msg.textContent = "Not accepted: " + (json.reason || "unknown");
+            msg.textContent = "Not accepted: " + (json.reason || "unknown"); // fail with explanation message
           }
         } catch (err) {
-          msg.textContent = "Network error: " + err.message;
+          msg.textContent = "Network error: " + err.message; // fail with error message
         } finally {
-          btn.disabled = false;
+          btn.disabled = false; // reenable button
         }
       });
     </script>
