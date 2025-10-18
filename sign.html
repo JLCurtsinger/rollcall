@@ -36,7 +36,7 @@
     <script>
       const params = new URLSearchParams(location.search); // read session from url
       const sessionId = params.get('session') || ''; // use empty string if missing
-      document.getElementById('sessionSpan').textContent = sessionId || '(missing)'; // show session id
+      document.getElementById('sessionSpan').textContent = sessionId || '(missing)'; // display session id
 
       const form = document.getElementById('f');
       const btn  = document.getElementById('btn');
@@ -90,3 +90,8 @@
     </script>
   </body>
 </html>
+
+<!-- references:
+https://developer.apple.com/documentation/webkitjs/urlsearchparams
+https://developer.apple.com/documentation/webkitjs/workerglobalscope/2871299-fetch
+https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/HandlingEvents/HandlingEvents.html -->
